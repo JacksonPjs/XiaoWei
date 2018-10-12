@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle"
+    android:useLevel="true">
+
+    <solid android:color="@color/white" />
+
+    <corners
+        android:bottomLeftRadius="3dp"
+        android:bottomRightRadius="3dp"
+        android:topLeftRadius="3dp"
+        android:topRightRadius="3dp" />
+    <stroke android:color="@color/org_item_tv"
+        android:width="1dp"
+        ></stroke>
+
+
+    <!--<gradient-->
+    <!--android:angle="0"-->
+    <!--android:endColor="@color/white"-->
+    <!--android:startColor="@color/black_homne_tv"-->
+    <!--/>-->
+
+</shape>
