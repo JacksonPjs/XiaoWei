@@ -45,17 +45,17 @@ public class AdvertDialog extends BaseDialog {
             @Override
             public void onClick(View v) {
                 if (onClickListener!=null){
-                    onClickListener.onDraw();
+                    onClickListener.onFinish();
                 }
                 dismiss();
             }
         });
 
-        bg.setOnClickListener(new View.OnClickListener() {
+        msg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (onClickListener!=null){
-                    onClickListener.onFinish();
+                    onClickListener.onDraw();
                 }
                 dismiss();
             }

@@ -10,7 +10,7 @@ import rx.Observable;
 
 public interface NetService {
     //服务器路径
-    public static final String API_SERVER = "http://192.168.1.217:8080/";//测试地址
+    public static final String API_SERVER = "http://47.106.123.95:9999/";//测试地址
 //    public static String API_SERVER = "http://www.chebaojr.com/app/";  //上线地址
 
     /**

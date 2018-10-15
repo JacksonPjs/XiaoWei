@@ -37,6 +37,7 @@ import android.widget.ViewSwitcher;
 import com.example.blibrary.banner.Banner;
 import com.example.blibrary.banner.BannerIndicator;
 import com.example.blibrary.utils.T;
+import com.xiaowei.bean.ScreenBean;
 import com.xiaowei.ui.Adapter.HomeAdapter;
 import com.xiaowei.MyApplication;
 import com.xiaowei.R;
@@ -60,7 +61,7 @@ import rx.Subscriber;
 public class MainActivity extends BaseActivity {
     // 定义一个变量，来标识是否退出app
     private static boolean isExit = false;
-    private String TAG="com.xiaowei.ui.activity.MainActivity";
+    private String TAG = "com.xiaowei.ui.activity.MainActivity";
     Activity activity;
     @Bind(R.id.recycle)
     RecyclerView recyclerView;
@@ -87,7 +88,7 @@ public class MainActivity extends BaseActivity {
     String maxTerm = "";//最高期限
     //    String condition="speed";//精准speed/rate/amount
     int sort = 1;//1/-1  （1：升序，-1：降序）
-    boolean isfirst=true;
+    boolean isfirst = true;
     CustomDialog.Builder builder;
 
     @Override
@@ -103,55 +104,62 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.e(TAG,"onResume");
-        if (AppUtils.isForeground(activity,TAG)){
+        Log.e(TAG, "onResume");
+        if (AppUtils.isForeground(activity, TAG)) {
         }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        Log.e(TAG,"onstop");
+        Log.e(TAG, "onstop");
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        Log.e(TAG,"onRestart");
+        Log.e(TAG, "onRestart");
     }
 
 
     @Override
     public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
         super.onSaveInstanceState(outState, outPersistentState);
-        Log.e(TAG,"onSaveInstanceState");
+        Log.e(TAG, "onSaveInstanceState");
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        Log.e(TAG,"onStart");
+        Log.e(TAG, "onStart");
 
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.e(TAG,"onDestroy");
+        Log.e(TAG, "onDestroy");
     }
 
-    public void showDialog(){
+    public void showDialog() {
         if (isfirst) {
             advertDialog.setOnClickListener(new AdvertDialog.OnClickListener() {
                 @Override
                 public void onFinish() {
-                    isfirst=false;
+                    isfirst = false;
                 }
 
                 @Override
                 public void onDraw() {
-                    isfirst=false;
-                    SharedPreferencesUtils.setIsFirst(activity, false);
+                    isfirst = false;
+
+                    Intent intent = new Intent();
+                    intent.setAction("android.intent.action.VIEW");
+                    Uri content_url = Uri.parse("http://api.baiyiwangluo.com/h5/invite.jsp");//此处填链接
+                    intent.setData(content_url);
+                    startActivity(intent);
+
+//                    SharedPreferencesUtils.setIsFirst(activity, false);
 
                 }
             });
@@ -159,6 +167,7 @@ public class MainActivity extends BaseActivity {
 
         }
     }
+
     public void initView() {
 //        boolean isfirst = SharedPreferencesUtils.getIsFirst(activity);
         advertDialog = new AdvertDialog(activity);
@@ -206,8 +215,15 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public void OnItemViewClick(int pos) {
-                Intent intent = new Intent(activity, DesignActivity.class);
+//                Intent intent = new Intent(activity, DesignActivity.class);
+//                startActivity(intent);
+                Intent intent = new Intent();
+                intent.setAction("android.intent.action.VIEW");
+                Uri content_url = Uri.parse("http://api.baiyiwangluo.com/h5/invite.jsp");//此处填链接
+                intent.setData(content_url);
                 startActivity(intent);
+
+
             }
         });
 
@@ -263,15 +279,17 @@ public class MainActivity extends BaseActivity {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if (textSwitcher != null) {
-                textSwitcher.setText(datas.get(index).getName());
-                index++;
-                if (index == datas.size()) {
-                    index = 0;
-                    bitHandler.sendEmptyMessageDelayed(0, 2000);
-
-                } else if (index < datas.size()) {
-                    bitHandler.sendEmptyMessageDelayed(0, 2000);
-                }
+//                textSwitcher.setText(datas.get(index).getName());
+                textSwitcher.setText("据统计，申请5款产品以上，贷款成功率超过99%");
+                bitHandler.removeMessages(0);
+//                index++;
+//                if (index == datas.size()) {
+//                    index = 0;
+//                    bitHandler.sendEmptyMessageDelayed(0, 2000);
+//
+//                } else if (index < datas.size()) {
+//                    bitHandler.sendEmptyMessageDelayed(0, 2000);
+//                }
 
             }
 
@@ -283,7 +301,7 @@ public class MainActivity extends BaseActivity {
      * */
     public void getData() {
 
-
+        bitHandler.sendEmptyMessage(0);
         NetWorks.productList(page + "", pageSize + "", minLoan + "", maxLoan + "",
                 minTerm + "", maxTerm + "", sort + "", new Subscriber<ProductListBean>() {
                     @Override
@@ -328,7 +346,7 @@ public class MainActivity extends BaseActivity {
 
                 break;
             case R.id.call:
-                 builder = new CustomDialog.Builder(activity);
+                builder = new CustomDialog.Builder(activity);
                 builder.setTitle("联系客服");
                 builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
@@ -494,12 +512,9 @@ public class MainActivity extends BaseActivity {
     List<String> loanList;
     List<String> termList;
     List<String> precisionList;
+    List<ScreenBean> beans;
     itemTextviewAdapter loanAdapter;
-    itemTextviewAdapter termAdapter;
-    itemTextviewAdapter precisionAdapter;
     RecyclerView loanView;
-    RecyclerView termView;
-    RecyclerView precisionView;
     TextView del, complete;
 
     private void initPopuptWindow(View view) {
@@ -546,8 +561,6 @@ public class MainActivity extends BaseActivity {
             mPopupWindow.showAtLocation(view, Gravity.NO_GRAVITY, 0, y + screenHome.getHeight());
         }
         loanView = view.findViewById(R.id.loanview);
-        termView = view.findViewById(R.id.termview);
-        precisionView = view.findViewById(R.id.precisionview);
         del = view.findViewById(R.id.del);
         complete = view.findViewById(R.id.complete);
         initPopData();
@@ -569,54 +582,108 @@ public class MainActivity extends BaseActivity {
         loanList = new ArrayList();
         termList = new ArrayList();
         precisionList = new ArrayList();
+        beans=new ArrayList<>();
+        ScreenBean bean=new ScreenBean();
         loanList.add("不限额度");
-        loanList.add("0~3千");
-        loanList.add("3千~一万");
-        loanList.add("1万~5万");
-        loanList.add("5万以上");
-        termList.add("不限期限");
-        termList.add("6个月以下");
-        termList.add("6个月以上");
-        termList.add("1-2年");
-        termList.add("2年及以上");
-        precisionList.add("最热门");
-        precisionList.add("申请人数最多");
-        precisionList.add("速度最快");
-        precisionList.add("成功率最高");
-        GridLayoutManager manager = new GridLayoutManager(this, 3);
-        GridLayoutManager manager1 = new GridLayoutManager(this, 3);
-        GridLayoutManager manager2 = new GridLayoutManager(this, 3);
-        loanView.setLayoutManager(manager);
-        termView.setLayoutManager(manager1);
-        precisionView.setLayoutManager(manager2);
+        loanList.add("1000以下");
+        loanList.add("1000~3000");
+        loanList.add("3000~5000");
+        loanList.add("5000~10000");
+        loanList.add("10000以上");
+        bean.setTitle("贷款金额");
+        bean.setName(loanList);
+        beans.add(bean);
 
-        loanAdapter = new itemTextviewAdapter(loanList, activity);
+        ScreenBean bean1=new ScreenBean();
+        bean1.setTitle("贷款期限");
+
+        termList.add("不限期限");
+        termList.add("7天");
+        termList.add("15天");
+        termList.add("15-30天");
+        termList.add("30天以上");
+        bean1.setName(termList);
+
+        beans.add(bean1);
+
+        ScreenBean  bean2=new ScreenBean();
+        bean2.setTitle("精准标签");
+        precisionList.add("下款速度最快");
+        precisionList.add("最热门");
+        precisionList.add("通过率最高");
+        bean2.setName(precisionList);
+        beans.add(bean2);
+        LinearLayoutManager manager = new LinearLayoutManager(this);
+        manager.setOrientation(LinearLayoutManager.VERTICAL);
+        loanView.setLayoutManager(manager);
+
+
+        loanAdapter = new itemTextviewAdapter(beans, activity);
 
 
         loanView.setAdapter(loanAdapter);
         loanAdapter.setOnItemClickLitener(new itemTextviewAdapter.OnItemClickLitener() {
             @Override
-            public void onItemClick(int pos) {
-                loanAdapter.setSelection(pos);
+            public void onItemClick(int pos,int itempos) {
+//                loanAdapter.setSelection(pos);
                 switch (pos) {
                     case 0:
+                        switch (itempos){
+                            case 0:
+                                maxLoan = "";
+                                minLoan = "";
+                                break;
+                            case 1:
+                                maxLoan = 1000 + "";
+                                minLoan = "0";
+                                break;
+                            case 2:
+                                maxLoan = 3000 + "";
+                                minLoan = 1000 + "";
+                                break;
+                            case 3:
+                                maxLoan = 5000 + "";
+                                minLoan = 3000 + "";
+                                break;
+                            case 4:
+                                maxLoan = "10000";
+                                minLoan = 5000+ "";
+                                break;
+                            case 5:
+                                maxLoan = "";
+                                minLoan = 10000 + "";
+                                break;
+
+                        }
                         break;
                     case 1:
-                        maxLoan = 3000 + "";
-                        minLoan = "0";
+                        switch (itempos) {
+                            case 0:
+                                minTerm = "";
+                                maxTerm = "";
+                                break;
+                            case 1:
+                                minTerm = 6 + "";
+                                maxTerm = "0";
+                                break;
+                            case 2:
+                                minTerm = 14 + "";
+                                maxTerm = 7 + "";
+                                break;
+                            case 3:
+                                minTerm = 29 + "";
+                                maxTerm = 15 + "";
+                                break;
+                            case 4:
+                                minTerm = "";
+                                maxTerm = 30 + "";
+                                break;
+                        }
                         break;
                     case 2:
-                        maxLoan = 10000 + "";
-                        minLoan = 3000 + "";
+
                         break;
-                    case 3:
-                        maxLoan = 50000 + "";
-                        minLoan = 10000 + "";
-                        break;
-                    case 4:
-                        maxLoan = "";
-                        minLoan = 50000 + "";
-                        break;
+
                 }
             }
 
@@ -626,53 +693,7 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        termAdapter = new itemTextviewAdapter(termList, activity);
-        termView.setAdapter(termAdapter);
-        termAdapter.setOnItemClickLitener(new itemTextviewAdapter.OnItemClickLitener() {
-            @Override
-            public void onItemClick(int pos) {
-                termAdapter.setSelection(pos);
-                switch (pos) {
-                    case 0:
-                        break;
-                    case 1:
-                        maxLoan = 180 + "";
-                        minLoan = "0";
-                        break;
-                    case 2:
-                        maxLoan = 365 + "";
-                        minLoan = 180 + "";
-                        break;
-                    case 3:
-                        maxLoan = 731 + "";
-                        minLoan = 365 + "";
-                        break;
-                    case 4:
-                        maxLoan = "";
-                        minLoan = 731 + "";
-                        break;
-                }
-            }
 
-            @Override
-            public void OnItemLongClick(int pos) {
-
-            }
-        });
-
-        precisionAdapter = new itemTextviewAdapter(precisionList, activity);
-        precisionView.setAdapter(precisionAdapter);
-        precisionAdapter.setOnItemClickLitener(new itemTextviewAdapter.OnItemClickLitener() {
-            @Override
-            public void onItemClick(int pos) {
-                precisionAdapter.setSelection(pos);
-            }
-
-            @Override
-            public void OnItemLongClick(int pos) {
-
-            }
-        });
         del.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

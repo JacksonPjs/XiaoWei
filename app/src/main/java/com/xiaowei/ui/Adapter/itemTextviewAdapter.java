@@ -7,9 +7,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.blibrary.flowlayout.FlowLayout;
+import com.example.blibrary.flowlayout.TagAdapter;
+import com.example.blibrary.flowlayout.TagFlowLayout;
 import com.example.blibrary.utils.Utils;
 import com.xiaowei.R;
+import com.xiaowei.bean.ScreenBean;
 
 import java.util.List;
 
@@ -17,13 +22,13 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class itemTextviewAdapter extends RecyclerView.Adapter<itemTextviewAdapter.ViewHolder> {
-    private List<String> datas;
+    private List<ScreenBean> datas;
     private Context context;
     int select = 0;
     OnItemClickLitener onItemClickLitener;
+    private TagAdapter<String> mAdapter ;
 
-
-    public itemTextviewAdapter(List<String> datas, Context context) {
+    public itemTextviewAdapter(List<ScreenBean> datas, Context context) {
         this.datas = datas;
         this.context = context;
     }
@@ -46,26 +51,33 @@ public class itemTextviewAdapter extends RecyclerView.Adapter<itemTextviewAdapte
     public void onBindViewHolder(final itemTextviewAdapter.ViewHolder holder, final int position) {
         ViewGroup.LayoutParams layoutParams = holder.itemView.getLayoutParams();
         layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT;
-        holder.title.setText(datas.get(position)+"");
-        if (select == position) {
-            holder.itemView.setSelected(true);
-            holder.title.setTextColor(Utils.getColor(context,R.color.white));
-        }else {
-            holder.itemView.setSelected(false);
-            holder.title.setTextColor(Utils.getColor(context,R.color.gray_item));
+        holder.title.setText(datas.get(position).getTitle()+"");
+        final LayoutInflater mInflater = LayoutInflater.from(context);
 
-        }
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
+        holder.flowLayout.setAdapter(mAdapter=new TagAdapter<String>(datas.get(position).getName()) {
             @Override
-            public void onClick(View v) {
-                if (onItemClickLitener!=null){
-                    onItemClickLitener.onItemClick(position);
-                }
+            public View getView(FlowLayout parent, int position, String o) {
+                TextView tv = (TextView) mInflater.inflate(R.layout.tv,
+                        holder.flowLayout, false);
+                tv.setText(o);
+                return tv;
+            }
+        });
+        mAdapter.setSelectedList(0);//预先设置选中
+        holder.flowLayout.setOnTagClickListener(new TagFlowLayout.OnTagClickListener()
+        {
+            @Override
+            public boolean onTagClick(View view, int posi, FlowLayout parent)
+            {
+//                Toast.makeText(context, datas.get(position).getName().get(posi), Toast.LENGTH_SHORT).show();
 
+                if (onItemClickLitener!=null){
+                    onItemClickLitener.onItemClick(position,posi);
+                }
+                return true;
             }
         });
 
-        //  holder.circleProgressbar.setProgressNotInUiThread(80);
 
 
     }
@@ -84,6 +96,8 @@ public class itemTextviewAdapter extends RecyclerView.Adapter<itemTextviewAdapte
 
         @Bind(R.id.title)
         TextView title;
+        @Bind(R.id.id_flowlayout)
+        TagFlowLayout flowLayout;
 
 
         ViewHolder(View view) {
@@ -93,7 +107,7 @@ public class itemTextviewAdapter extends RecyclerView.Adapter<itemTextviewAdapte
     }
 
     public interface OnItemClickLitener{
-        void onItemClick(int pos);
+        void onItemClick(int pos,int itempos);
         void OnItemLongClick(int pos);
     }
 
