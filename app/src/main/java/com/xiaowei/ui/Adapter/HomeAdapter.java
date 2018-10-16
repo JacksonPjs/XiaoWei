@@ -56,7 +56,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
         }else {
             moneyShow=d.getMinLoan()+"~"+d.getMaxLoan();
         }
-        String str1 = "金额:";
+        String str1 = "额度:";
         String str2 = "" + moneyShow;
 
         Glide.with(context).load(d.getIcon())

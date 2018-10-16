@@ -11,16 +11,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -44,8 +41,9 @@ import com.xiaowei.R;
 import com.xiaowei.bean.ProductListBean;
 import com.xiaowei.net.NetWorks;
 import com.xiaowei.ui.Adapter.itemTextviewAdapter;
-import com.xiaowei.utils.AppUtils;
-import com.xiaowei.utils.SharedPreferencesUtils;
+import com.xiaowei.ui.activity.Login.LoginActivity;
+import com.xiaowei.ui.activity.Personal.PersonalActivity;
+import com.xiaowei.utils.IntentUtils;
 import com.xiaowei.widget.Dialog.AdvertDialog;
 import com.xiaowei.widget.Dialog.CustomDialog;
 import com.xiaowei.widget.DividerItemDecoration;
@@ -100,74 +98,17 @@ public class MainActivity extends BaseActivity {
         initView();
 
     }
+    @Override
+    protected void onPause() {
+        banner.pauseScroll();
+        super.onPause();
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.e(TAG, "onResume");
-        if (AppUtils.isForeground(activity, TAG)) {
-        }
+        banner.resumeScroll();
     }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.e(TAG, "onstop");
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.e(TAG, "onRestart");
-    }
-
-
-    @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
-        Log.e(TAG, "onSaveInstanceState");
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.e(TAG, "onStart");
-
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.e(TAG, "onDestroy");
-    }
-
-    public void showDialog() {
-        if (isfirst) {
-            advertDialog.setOnClickListener(new AdvertDialog.OnClickListener() {
-                @Override
-                public void onFinish() {
-                    isfirst = false;
-                }
-
-                @Override
-                public void onDraw() {
-                    isfirst = false;
-
-                    Intent intent = new Intent();
-                    intent.setAction("android.intent.action.VIEW");
-                    Uri content_url = Uri.parse("http://api.baiyiwangluo.com/h5/invite.jsp");//此处填链接
-                    intent.setData(content_url);
-                    startActivity(intent);
-
-//                    SharedPreferencesUtils.setIsFirst(activity, false);
-
-                }
-            });
-            advertDialog.show();
-
-        }
-    }
-
     public void initView() {
 //        boolean isfirst = SharedPreferencesUtils.getIsFirst(activity);
         advertDialog = new AdvertDialog(activity);
@@ -245,7 +186,7 @@ public class MainActivity extends BaseActivity {
                 if (imgPath.equals("1"))
                     imageView.setImageDrawable(ContextCompat.getDrawable(getBaseContext(), R.mipmap.banner));
                 if (imgPath.equals("2"))
-                    imageView.setImageDrawable(ContextCompat.getDrawable(getBaseContext(), R.mipmap.icon_phone));
+                    imageView.setImageDrawable(ContextCompat.getDrawable(getBaseContext(), R.mipmap.icon_call));
                 if (imgPath.equals("3"))
                     imageView.setImageDrawable(ContextCompat.getDrawable(getBaseContext(), R.mipmap.ic_launcher));
             }
@@ -266,7 +207,9 @@ public class MainActivity extends BaseActivity {
         banner.setOnBannerItemClickListener(new Banner.OnBannerItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                Toast.makeText(getBaseContext(), "position:" + position, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getBaseContext(), "position:" + position, Toast.LENGTH_SHORT).show();
+                IntentUtils.GoChrome(activity);
+
             }
         });
         getData();
@@ -335,17 +278,21 @@ public class MainActivity extends BaseActivity {
         adapter.notifyDataSetChanged();
     }
 
-    @OnClick({R.id.gonggao, R.id.screen_home, R.id.call, R.id.tv_sort})
+    @OnClick({R.id.gonggao, R.id.screen_home, R.id.call, R.id.tv_sort,R.id.mine})
     public void onClick(View view) {
         Intent intent = null;
         switch (view.getId()) {
-            case R.id.screen_home:
+            case R.id.mine:
+                intent=new Intent(activity,PersonalActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.screen_home://筛选
                 View popview = View.inflate(MainActivity.this, R.layout.pop_screen_home, null);
 
                 initPopuptWindow(popview);
 
                 break;
-            case R.id.call:
+            case R.id.call://打电话
                 builder = new CustomDialog.Builder(activity);
                 builder.setTitle("联系客服");
                 builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
@@ -375,7 +322,7 @@ public class MainActivity extends BaseActivity {
 
                 break;
 
-            case R.id.tv_sort:
+            case R.id.tv_sort://
                 View popsortview = View.inflate(MainActivity.this, R.layout.pop_sort_home, null);
 
                 initSortPopuptWindow(popsortview);
@@ -414,6 +361,33 @@ public class MainActivity extends BaseActivity {
                 default:
                     break;
             }
+        }
+    }
+    //广告弹窗
+    public void showDialog() {
+        if (isfirst) {
+            advertDialog.setOnClickListener(new AdvertDialog.OnClickListener() {
+                @Override
+                public void onFinish() {
+                    isfirst = false;
+                }
+
+                @Override
+                public void onDraw() {
+                    isfirst = false;
+
+                    Intent intent = new Intent();
+                    intent.setAction("android.intent.action.VIEW");
+                    Uri content_url = Uri.parse("http://api.baiyiwangluo.com/h5/invite.jsp");//此处填链接
+                    intent.setData(content_url);
+                    startActivity(intent);
+
+//                    SharedPreferencesUtils.setIsFirst(activity, false);
+
+                }
+            });
+            advertDialog.show();
+
         }
     }
 

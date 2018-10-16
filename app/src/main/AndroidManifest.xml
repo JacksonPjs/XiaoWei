@@ -25,6 +25,12 @@
         </activity>
         <activity android:name=".ui.activity.DesignActivity"></activity>
         <activity android:name=".ui.activity.MainActivity"></activity>
+        <activity android:name=".ui.activity.Guide.GuideActivity"></activity>
+        <activity android:name=".ui.activity.Login.LoginActivity"></activity>
+        <activity android:name=".ui.activity.Personal.PersonalActivity"></activity>
+        <activity android:name=".ui.activity.Personal.NewsActivity"></activity>
+        <activity android:name=".ui.activity.Personal.ContactActivity"></activity>
+        <activity android:name=".ui.activity.Guide.AdvertActivity"></activity>
     </application>
 
 </manifest>

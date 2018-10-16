@@ -221,8 +221,8 @@ public class SharedPreferencesUtils {
     public static void setIsFirst(Context context, boolean IsFirst) {
         SharedPreferencesUtils.setParam(context, "IsFirst", IsFirst);
     }
-
+    /*判断是否第一次打开app*/
     public static boolean getIsFirst(Context context) {
-        return (boolean) SharedPreferencesUtils.getParam(context, "IsFirst", true);
+        return (boolean) SharedPreferencesUtils.getParam(context, "IsFirst", false);
     }
 }

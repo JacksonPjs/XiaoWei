@@ -14,6 +14,9 @@ import android.util.Log;
 import com.example.blibrary.utils.PermissionsManager;
 import com.example.blibrary.utils.T;
 import com.xiaowei.R;
+import com.xiaowei.ui.activity.Guide.AdvertActivity;
+import com.xiaowei.ui.activity.Guide.GuideActivity;
+import com.xiaowei.ui.activity.Login.LoginActivity;
 import com.xiaowei.utils.SharedPreferencesUtils;
 
 
@@ -21,6 +24,7 @@ public class StartActivity extends BaseActivity {
     private final int REQUEST_VIDEO_PERMISSION = 1;
     private final static String TAG = "StartActivity";
     Activity activity;
+    Intent intent ;
 
 
     Handler mHandler = new Handler() {
@@ -29,14 +33,14 @@ public class StartActivity extends BaseActivity {
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
                 case 0:
-                    intent = new Intent(StartActivity.this, MainActivity.class);
+                    intent = new Intent(StartActivity.this, AdvertActivity.class);
                     startActivity(intent);
                     finish();
                     break;
                 case 1:
-//                    intent = new Intent(StartActivity.this, GestureVerifyActivity.class);
-//                    startActivity(intent);
-//                    finish();
+                    intent = new Intent(StartActivity.this, GuideActivity.class);
+                    startActivity(intent);
+                    finish();
                     break;
             }
 
@@ -49,8 +53,21 @@ public class StartActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_start);
-        activity = this;
+        // 判断是否是第一次开启应用
+        boolean isFirstOpen = SharedPreferencesUtils.getIsFirst(this);
+        // 如果是第一次启动，则先进入功能引导页
+        if (!isFirstOpen) {
+             intent = new Intent(this, GuideActivity.class);
+            intent.putExtra("flag","start");
+            startActivity(intent);
+            finish();
+            return;
+        }else {
+            // 如果不是第一次启动app，则正常显示启动屏
+
+
+            setContentView(R.layout.activity_start);
+            activity = this;
 //        while (true){
 //            String[] permissions = PermissionsManager.haveNoPermissions(this, PERMISSIONS);
 //            if (permissions == null || permissions.length < 1) {
@@ -61,7 +78,13 @@ public class StartActivity extends BaseActivity {
 //                ActivityCompat.requestPermissions(this, permissions, REQUEST_VIDEO_PERMISSION);
 //            }
 //        }
-        startMain();
+            intent = new Intent(StartActivity.this, AdvertActivity.class);
+            startActivity(intent);
+            finish();
+//            startMain();
+
+        }
+
 
     }
 
